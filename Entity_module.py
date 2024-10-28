@@ -1,5 +1,28 @@
 # coding: utf-8
 
+import enum 
+
+class Vector2:
+    def __init__(self, x, y) -> None:
+        self.__x = x
+        self.__y = y
+
+    @property
+    def get_x(self) -> int:
+        return self.__x
+    
+    @property
+    def get_y(self) -> int:
+        return self.__y
+
+
+class Direction(enum.Enum):
+    "W" = 0
+    "S" = 1
+    "A" = 2
+    "D" = 3
+
+
 class Entity:
     def __init__(self,name:str,level:int) -> None: 
         self.__name = name
@@ -55,6 +78,12 @@ class Enemy(Entity):
     @property
     def get_isBoss(self) -> bool:
         return self.__isBoss
+
+
+class Item(Entity):
+    def __init__(self, name: str, level: int) -> None:
+        super().__init__(name, level)
+
 
 #テスト
 # player = Entity("真理",30)
