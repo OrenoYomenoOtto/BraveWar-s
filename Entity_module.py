@@ -56,7 +56,6 @@ class Enemy(Entity):
     def get_isBoss(self) -> bool:
         return self.__isBoss
 
-
 #テスト
 # player = Entity("真理",30)
 # brave  = Braver("律",40)
