@@ -1,78 +1,64 @@
 # coding: utf-8
 
 class Entity:
-    def __init__(self,name:str,level:int):
+    def __init__(self,name:str,level:int) -> None: 
         self.__name = name
         self.__level = level
 
     @property
-    def name(self):
-        """
-        nameのgetterメソッド
-        """
-        return self.__name
-    
-    @property
-    def level(self):
-        """
-        levelのgetterメソッド
-        """
+    def get_level(self) -> int:
         return self.__level
+        
+    @property
+    def get_name(self) -> str:
+        return self.__name
+
+    @get_level.setter
+    def set_level(self, level:int) -> None:
+        self.__level = level
 
 
-class Player(Entity):
-    def __init__(self, name:str, level:int):
+class Braver(Entity):
+    def __init__(self, name: str, level: int) -> None:
         super().__init__(name, level)
-        self.__move_count = 0
         self.__isAlive = True
+        self.__move_count = 0 
 
     @property
-    def move_count(self):
-        """
-        move_countのgetterメソッド
-        """
-        return self.__move_count
-    
-    @property
-    def isAlive(self):
-        """
-        isAliveのgetterメソッド
-        """
+    def get_isAlive(self) -> bool:
         return self.__isAlive
     
-    def level_up(self,level:int):
-        self.__level += level
-
-    def raise_move_counter(self):
+    @property
+    def get_move_count(self) -> int:
+        return self.__move_count
+    
+    def proceed_move_counter(self) -> None:
         self.__move_count += 1
+    
+    def level_up(self, level:int) -> None:
+        Re_level = self.get_level + level
+        self.set_level = Re_level
 
-    def battle(self,E_level:int):
-        """
-        戦闘を行う関数\n
-        引数 E_level : 敵のlevel\n
-        具体的な処理 \n
-        playerの生死状態を行う。
-        """
-        if self.__level >= E_level:
+    def battle(self, E_level:int) -> None:
+        if self.get_level <= E_level:
             self.__isAlive = False
+
+    def show_status(self) -> str:
+        return self.get_name+ "\nレベル:" + str(self.get_level) + "\n移動回数" + str(self.get_move_count) 
 
 
 class Enemy(Entity):
-    def __init__(self, name:str, level:int, isBoss:bool):
+    def __init__(self, name: str, level: int, isBoss: bool) -> None:
         super().__init__(name, level)
         self.__isBoss = isBoss
 
     @property
-    def isBoss(self):
+    def get_isBoss(self) -> bool:
         return self.__isBoss
 
 
 #テスト
-player = Player("勇者",10)
-enemy1 = Enemy("雑魚",5,False)
-enemy2 = Enemy("雑魚",20,False)
-
-player.battle(enemy1.level)
-print(player.isAlive)
-player.battle(enemy2.level)
-print(player.isAlive)
+# player = Entity("真理",30)
+# brave  = Braver("律",40)
+# print(brave.show_status())
+# brave.level_up(player.get_level)
