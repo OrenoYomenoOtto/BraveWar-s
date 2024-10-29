@@ -25,7 +25,6 @@ class Direction(enum.Enum):
 
 class Entity:
     def __init__(self, name:str, level:int, x:int, y:int) -> None: 
-        vector2 = Vector2(x,y)
         self.__name = name
         self.__level = level
 
@@ -66,6 +65,10 @@ class Braver(Entity):
     def battle(self, E_level:int) -> None:
         if self.get_level <= E_level:
             self.__isAlive = False
+
+    def move(self) -> None:
+        pass
+        
 
     def show_status(self) -> str:
         return self.get_name+ "\nレベル:" + str(self.get_level) + "\n移動回数" + str(self.get_move_count) 
