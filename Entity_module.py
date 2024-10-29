@@ -24,7 +24,8 @@ class Direction(enum.Enum):
 
 
 class Entity:
-    def __init__(self,name:str,level:int) -> None: 
+    def __init__(self, name:str, level:int, x:int, y:int) -> None: 
+        vector2 = Vector2(x,y)
         self.__name = name
         self.__level = level
 
