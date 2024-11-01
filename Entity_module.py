@@ -1,6 +1,8 @@
 # coding: utf-8
 
 import enum 
+import IO_module
+
 
 class Vector2:
     def __init__(self, x, y) -> None:
@@ -14,6 +16,14 @@ class Vector2:
     @property
     def get_y(self) -> int:
         return self.__y
+    
+    @get_x.setter
+    def set_x(self, x) -> None:
+        self.__x = x
+
+    @get_y.setter
+    def set_y(self, y) -> None:
+        self.__y = y
 
 
 class Direction(enum.Enum):
@@ -27,8 +37,7 @@ class Entity:
     def __init__(self, name:str, level:int, x:int, y:int) -> None: 
         self.__name = name
         self.__level = level
-        self.__x = x
-        self.__y = y
+        self.vector2 = Vector2(x,y)
 
     @property
     def get_level(self) -> int:
@@ -37,6 +46,10 @@ class Entity:
     @property
     def get_name(self) -> str:
         return self.__name
+    
+    @property
+    def get_vector2(self) -> Vector2:
+        return self.vector2
 
     @get_level.setter
     def set_level(self, level:int) -> None:
@@ -73,10 +86,17 @@ class Braver(Entity):
             self.__isAlive = False
 
     def move(self) -> None:
-        pass
-        
+        direction_num = IO_module.select_direction(self.vector2)
+        if direction_num ==Direction.W:
+            self.vector2.set_y()
+        elif direction_num == Direction.S:
+            self.vector2.set_y()
+        elif direction_num == Direction.A:
+            self.vector2.set_x()
+        elif direction_num == Direction.D:
+            self.vector2.set_x()
 
-    def show_status(self) -> str:
+    def give_status(self) -> str:
         return self.get_name+ "\nレベル:" + str(self.get_level) + "\n移動回数" + str(self.get_move_count) 
 
 
