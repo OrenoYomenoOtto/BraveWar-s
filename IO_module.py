@@ -7,6 +7,7 @@ import os
 import sys
 import configparser
 import json
+import re
 import enum
 import Entity_module
 from typing import Tuple
@@ -34,15 +35,83 @@ def load_player(file_path:str) -> Tuple[str,int]:
     player_level = config_ini["BRAVER"]["Level"]
     return player_name,player_level
 
-def load_enemy():
-    pass
+def load_enemy_pos_list(dungeon:list, x:int, y:int) -> Tuple[list, int]:
+    enemy_counter = 0
+    enemy_list = []
+    for i in range(y):
+        for j in range(x):
+            enemy_id = dungeon[i][j]
+            if re.match("M",enemy_id) != None:
+                enemy_info = [enemy_id, j, i]
+                enemy_list.append(enemy_info)
+                enemy_counter += 1
+    return enemy_list, enemy_counter   
 
-def load_dungeon(file_path:str) -> list:
+def load_enemy_info(data, category, sub_key=None):
+    try:
+        if sub_key:
+            text = data[category][sub_key]
+        else:
+            text = data[category]
+        return text
+    except KeyError:
+        error_message = f"Error: '{category}' または '{sub_key}' に対応するテキストが見つかりません。"
+        print(error_message)
+        return error_message
+    
+
+def load_item(file_path:str) -> Tuple[str,int]:
+    """
+    設定ファイルからitemの情報を読み込む関数
+    読み込む値は"Name"と"Level"
+    """
+    config_ini = configparser.ConfigParser()
+    config_ini.read(file_path, encoding="utf-8")
+    item_name = config_ini["ITEM"]["Name"]
+    item_level = config_ini["ITEM"]["Level"]
+    return item_name,item_level
+
+
+def load_item_pos_list(dungeon:list, x:int, y:int):
+    item_counter = 0
+    item_list = []
+    for i in range(y):
+        for j in range(x):
+            if re.match("I",dungeon[i][j]) != None:
+                enemy_info = [dungeon[i][j], i, j]
+                item_list.append(enemy_info)
+                item_counter += 1
+    return item_list, item_counter   
+
+def load_dungeon(file_path:str) -> Tuple[list, int, int]:
+    """
+    Dungeonを読み込む関数
+    """
+    map_list = []
     with open(file_path) as f:
-        date = f.read()
-        print(date)
+        lines = f.readlines()
+    for i in lines:
+        one_line = i.replace("\n", "").split(",")
+        map_list.append(one_line)
+    x = len(map_list[0])
+    y = len(map_list)
+    return map_list , x, y
 
-def load_flavor_text(file_path):
+def show_dungeon(map_list:list, map_size_x:int, map_size_y:int):
+    """
+    Dungeonを表示する関数
+    """
+    cell_size = 3
+
+    for i in map_list:
+        for j in range(map_size_x):
+            print(i[j].center(cell_size) + "|", end="")
+        print("")
+
+def load_json(file_path:str) -> dict:
+    """
+    jsonファイルを読み込む関数
+    """
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
@@ -54,6 +123,9 @@ def load_flavor_text(file_path):
     return None
 
 def display_flavor_text(data, category, sub_key=None):
+    """
+    flavor.jsonを出力する関数
+    """
     try:
         if sub_key:
             text = data[category][sub_key]
@@ -76,6 +148,9 @@ def print_status(status:str) -> None:
     print(status)
 
 def select_direction(pos:Entity_module.Vector2) -> int:
+    """
+    方向を入力する関数
+    """
     direction = None
     direction_num = None
     while True:
