@@ -17,16 +17,18 @@ class Vector2:
 
 
 class Direction(enum.Enum):
-    "W" = 0
-    "S" = 1
-    "A" = 2
-    "D" = 3
+    W = 0
+    S = 1
+    A = 2
+    D = 3
 
 
 class Entity:
     def __init__(self, name:str, level:int, x:int, y:int) -> None: 
         self.__name = name
         self.__level = level
+        self.__x = x
+        self.__y = y
 
     @property
     def get_level(self) -> int:
@@ -40,10 +42,14 @@ class Entity:
     def set_level(self, level:int) -> None:
         self.__level = level
 
+    @get_name.setter
+    def set_name(self, name:str) -> None:
+        self.__name = name
+
 
 class Braver(Entity):
-    def __init__(self, name: str, level: int) -> None:
-        super().__init__(name, level)
+    def __init__(self, name: str, level: int, x:int, y:int) -> None:
+        super().__init__(name, level, x, y)
         self.__isAlive = True
         self.__move_count = 0 
 
@@ -75,8 +81,8 @@ class Braver(Entity):
 
 
 class Enemy(Entity):
-    def __init__(self, name: str, level: int, isBoss: bool) -> None:
-        super().__init__(name, level)
+    def __init__(self, name: str, level: int, x:int, y:int, isBoss: bool) -> None:
+        super().__init__(name, level, x, y)
         self.__isBoss = isBoss
 
     @property
