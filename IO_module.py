@@ -6,11 +6,12 @@
 import os
 import sys
 import configparser
+import ast
 import json
 import re
 import enum
 import Entity_module
-from typing import Tuple
+from typing import Tuple, Final
 
 
 def file_check(file_path:str) -> None:
@@ -24,64 +25,24 @@ def file_check(file_path:str) -> None:
         print("必要なファイルが存在しません。\nファイルを確認してください。\n\n 足りないファイル：" + file_path )
         sys.exit()
 
-def load_player(file_path:str) -> Tuple[str,int]:
+def load_Entities(file_path:str, main_key:str, sub_key:str) -> dict:
     """
-    設定ファイルからplayerの情報を読み込む関数
-    読み込む値は"Name"と"Level"
+    設定ファイル(Entity_config.ini)から辞書情報を読み込む関数
+    データが複数ある場合はdictが入ったlistで返し、そうでない場合はdictで返す
     """
-    config_ini = configparser.ConfigParser()
-    config_ini.read(file_path, encoding="utf-8")
-    player_name = config_ini["BRAVER"]["Name"]
-    player_level = config_ini["BRAVER"]["Level"]
-    return player_name,player_level
-
-def load_enemy_pos_list(dungeon:list, x:int, y:int) -> Tuple[list, int]:
-    enemy_counter = 0
-    enemy_list = []
-    for i in range(y):
-        for j in range(x):
-            enemy_id = dungeon[i][j]
-            if re.match("M",enemy_id) != None:
-                enemy_info = [enemy_id, j, i]
-                enemy_list.append(enemy_info)
-                enemy_counter += 1
-    return enemy_list, enemy_counter   
-
-def load_enemy_info(data, category, sub_key=None):
-    try:
-        if sub_key:
-            text = data[category][sub_key]
-        else:
-            text = data[category]
-        return text
-    except KeyError:
-        error_message = f"Error: '{category}' または '{sub_key}' に対応するテキストが見つかりません。"
-        print(error_message)
-        return error_message
-    
-
-def load_item(file_path:str) -> Tuple[str,int]:
-    """
-    設定ファイルからitemの情報を読み込む関数
-    読み込む値は"Name"と"Level"
-    """
-    config_ini = configparser.ConfigParser()
-    config_ini.read(file_path, encoding="utf-8")
-    item_name = config_ini["ITEM"]["Name"]
-    item_level = config_ini["ITEM"]["Level"]
-    return item_name,item_level
-
-
-def load_item_pos_list(dungeon:list, x:int, y:int):
-    item_counter = 0
-    item_list = []
-    for i in range(y):
-        for j in range(x):
-            if re.match("I",dungeon[i][j]) != None:
-                enemy_info = [dungeon[i][j], i, j]
-                item_list.append(enemy_info)
-                item_counter += 1
-    return item_list, item_counter   
+    Entity_config = configparser.ConfigParser()
+    Entity_config.read(file_path)
+    entities = []
+    counter = 1
+    while True:
+        tmp = ast.literal_eval(Entity_config[main_key][sub_key+str(counter)])
+        if tmp == None:
+            break
+        entities.append(tmp)
+        counter += 1
+    if len(entities) < 2:
+        return entities[0]
+    return entities
 
 def load_dungeon(file_path:str) -> Tuple[list, int, int]:
     """

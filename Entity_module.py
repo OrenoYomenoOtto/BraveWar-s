@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import enum 
+from typing import Final
 import IO_module
 
 
@@ -9,7 +10,7 @@ class Vector2:
     x,y成分をまとめたクラス
     メンバはprivateで__x, __yを持つ
     """
-    def __init__(self, x, y) -> None:
+    def __init__(self, x:int, y:int) -> None:
         self.__x = x
         self.__y = y
 
@@ -44,7 +45,7 @@ class Vector2:
         self.__y = y
 
 
-class Direction(enum.Enum):
+class Direction(enum.IntEnum):
     W = 0
     S = 1
     A = 2
@@ -54,12 +55,27 @@ class Direction(enum.Enum):
 class Entity:
     """
     エンティティの設計書、使用する場合は継承してください。
-    メンバはprivateで __name, __level, __x, __yを持つ。
+    メンバはprivateで __name, __level, vector2を持つ。
     """
-    def __init__(self, name:str, level:int, x:int, y:int) -> None: 
-        self.__name = name
-        self.__level = level
+    def __init__(self, Id:str, name:str, level:int, x:int, y:int) -> None: 
+        self.__Id: Final[str]= Id
+        self.__name: Final[str] = name
+        self.__level: Final[int] = level
         self.vector2 = Vector2(x,y)
+
+    @property
+    def get_Id(self) -> str:
+        """
+        Idを取得するメソッド
+        """
+        return self.__Id
+
+    @property
+    def get_name(self) -> str:
+        """
+        nameを取得するメソッド
+        """
+        return self.__name
 
     @property
     def get_level(self) -> int:
@@ -68,13 +84,6 @@ class Entity:
         """
         return self.__level
         
-    @property
-    def get_name(self) -> str:
-        """
-        nameを取得するメソッド
-        """
-        return self.__name
-    
     @property
     def get_vector2(self) -> Vector2:
         """
@@ -90,22 +99,14 @@ class Entity:
         """
         self.__level = level
 
-    @get_name.setter
-    def set_name(self, name:str) -> None:
-        """
-        nameをセットするメソッド
-        ※取り扱い注意
-        """
-        self.__name = name
-
 
 class Braver(Entity):
     """
     勇者の設計書、エンティティを継承してます。
-    メンバはprivateで __name, __level, __x, __y, __isAlive, __move_countを持つ。
+    メンバはprivateで __name, __level, vector2, __isAlive, __move_countを持つ。
     """
-    def __init__(self, name: str, level: int, x:int, y:int) -> None:
-        super().__init__(name, level, x, y)
+    def __init__(self, Id: str, name: str, level: int, x: int, y: int) -> None:
+        super().__init__(Id, name, level, x, y)
         self.__isAlive = True
         self.__move_count = 0 
 
@@ -170,8 +171,8 @@ class Braver(Entity):
 
 
 class Enemy(Entity):
-    def __init__(self, name: str, level: int, x:int, y:int, isBoss: bool) -> None:
-        super().__init__(name, level, x, y)
+    def __init__(self, Id: str, name: str, level: int, x: int, y: int, isBoss: bool) -> None:
+        super().__init__(Id, name, level, x, y)
         self.__isBoss = isBoss
 
     @property
@@ -182,3 +183,56 @@ class Enemy(Entity):
 class Item(Entity):
     def __init__(self, name: str, level: int) -> None:
         super().__init__(name, level)
+
+
+class Dungeon:
+    VERTICAL_LINE: Final[str] = "+---"
+    HORIZON_LINE: Final[str] = " | "
+    LINE_END: Final[str] = "+"
+    EMPTY_SQUARE :Final[str] = "     "
+    
+    def __init__(self, width:int, hight:int ) -> None:
+        self.__width: Final[int] = width
+        self.__hight: Final[int] = hight
+        self.__map = [["" for j in range(self.__hight)] for i in range(self.__width)]
+
+    @property
+    def get_width(self) -> int:
+        return self.__width
+    
+    @property
+    def get_hight(self) -> int:
+        return self.__hight
+    
+    @property
+    def get_map(self) -> list:
+        return self.__map
+
+    def set_Entity(self, entity:Entity, pos:Vector2) -> None:
+        pos_x: Final[int] = pos.get_x
+        pos_y: Final[int] = pos.get_y    
+        self.__map[pos_y][pos_x] = entity
+
+    def delete_Entity(self, pos:Vector2) -> None:
+        pos_x: Final[int] = pos.get_x
+        pos_y: Final[int] = pos.get_y    
+        self.__map[pos_y][pos_x] = ""
+
+    def draw_map(self) -> list:
+        dungeon_map = [] 
+        vertical_squares = ""
+        vertical_lines: Final[str] = Dungeon.VERTICAL_LINE * self.__width + Dungeon.LINE_END
+        for i in range(self.__hight*2):
+            if i%2 == 0:
+                dungeon_map.append(vertical_lines)
+            elif i%2 == 1:
+                for j in range(self.__width*2):
+                    if j%2 == 0:
+                        vertical_squares += Dungeon.HORIZON_LINE
+                    elif j%2 == 1:
+                        pass
+                vertical_squares += Dungeon.HORIZON_LINE
+                dungeon_map.append(vertical_squares)
+        dungeon_map.append(vertical_lines)
+        return dungeon_map
+                
