@@ -6,7 +6,7 @@ import IO_module
 import Entity_module 
 import sys
 
-
+ENTITY_CONFIG: Final[str] = "Entity_module.py" 
 FILE_PATH: Tuple[str] = ("Entity_module.py", "Entity_config.ini","IO_module.py","Flavor.json")
 MAP_WIDTH_SIZE: Final[int] = 5
 MAP_HIGHT_SIZE: Final[int] = 5
@@ -18,13 +18,14 @@ for i in range(len(FILE_PATH)):
 
 #FileLoad
 flavor_data = IO_module.load_json("Flavor.json")
-player_data = IO_module.load_Entities("Entity_config.ini", "BRAVER", "Braver")
-enemy_data_01 = IO_module.load_Entities("Entity_config.ini", "DUNGEON01_ENEMIES", "Enemy")
-enemy_data_02 = IO_module.load_Entities("Entity_config.ini", "DUNGEON02_ENEMIES", "Enemy")
-item_data_01 = IO_module.load_Entities("Entity_config.ini", "DUNGEON01_ITEMS", "Item")
-item_data_02 = IO_module.load_Entities("Entity_config.ini", "DUNGEON02_ITEMS", "Item")
-boss_data = IO_module.load_Entities("Entity_config.ini", "DUNGEON_BOSS", "Boss")
+player_data = IO_module.load_Entities(ENTITY_CONFIG, "BRAVER", "Braver")
+enemy_data_01 = IO_module.load_Entities(ENTITY_CONFIG, "DUNGEON01_ENEMIES", "Enemy")
+enemy_data_02 = IO_module.load_Entities(ENTITY_CONFIG, "DUNGEON02_ENEMIES", "Enemy")
+item_data_01 = IO_module.load_Entities(ENTITY_CONFIG, "DUNGEON01_ITEMS", "Item")
+item_data_02 = IO_module.load_Entities(ENTITY_CONFIG, "DUNGEON02_ITEMS", "Item")
+boss_data = IO_module.load_Entities(ENTITY_CONFIG, "DUNGEON_BOSS", "Boss")
 
+#enemy_data[] = IO_module.load_Entit
 
 #playerの初期化,インスタンス化
 Player = Entity_module.Braver(player_data[0]["Id"], player_data[0]["Name"], player_data[0]["Level"], player_data[0]["Pos_x"], player_data[0]["Pos_y"] )
