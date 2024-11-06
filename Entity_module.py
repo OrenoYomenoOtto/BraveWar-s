@@ -29,7 +29,7 @@ class Vector2:
         return self.__y
     
     @get_x.setter
-    def set_x(self, x) -> None:
+    def set_x(self, x: int) -> None:
         """
         xをセットするメソッド
         ※取り扱い注意
@@ -37,7 +37,7 @@ class Vector2:
         self.__x = x
 
     @get_y.setter
-    def set_y(self, y) -> None:
+    def set_y(self, y: int) -> None:
         """
         yをセットするメソッド
         ※取り扱い注意
@@ -152,16 +152,16 @@ class Braver(Entity):
         direction_num = IO_module.select_direction(self.vector2)
         if direction_num ==Direction.W:
             y_pos = self.vector2.get_y -1
-            self.vector2.set_y(y_pos)
+            self.vector2.set_y = y_pos
         elif direction_num == Direction.S:
             y_pos = self.vector2.get_y +1
-            self.vector2.set_y(y_pos)
+            self.vector2.set_y = y_pos
         elif direction_num == Direction.A:
             x_pos = self.vector2.get_x -1
-            self.vector2.set_x(x_pos)
+            self.vector2.set_x = x_pos
         elif direction_num == Direction.D:
             x_pos = self.vector2.get_x +1
-            self.vector2.set_x(x_pos)
+            self.vector2.set_x = x_pos
 
     def give_status(self) -> str:
         """
@@ -181,15 +181,15 @@ class Enemy(Entity):
 
 
 class Item(Entity):
-    def __init__(self, name: str, level: int) -> None:
-        super().__init__(name, level)
+    def __init__(self, Id: str, name: str, level: int, x: int, y: int) -> None:
+        super().__init__(Id, name, level, x, y)
 
 
 class Dungeon:
     VERTICAL_LINE: Final[str] = "+---"
-    HORIZON_LINE: Final[str] = " | "
+    HORIZON_LINE: Final[str] = "|"
     LINE_END: Final[str] = "+"
-    EMPTY_SQUARE :Final[str] = "     "
+    EMPTY_SQUARE :Final[str] = "   "
     
     def __init__(self, width:int, hight:int ) -> None:
         self.__width: Final[int] = width
@@ -207,30 +207,52 @@ class Dungeon:
     @property
     def get_map(self) -> list:
         return self.__map
+    
+    def collision_Entity(self, entity:Entity) -> bool:
+        isCollision = False
+        pos = entity.get_vector2
+        pos_x: Final[int] = pos.get_x
+        pos_y: Final[int] = pos.get_y    
+        if self.__map[pos_y][pos_x] != "":
+            isCollision = True
+        return isCollision, pos
+    
+    def get_Entity(self, pos:Vector2) -> Entity:
+        pos_x: Final[int] = pos.get_x
+        pos_y: Final[int] = pos.get_y
+        return self.__map[pos_y][pos_x]    
 
-    def set_Entity(self, entity:Entity, pos:Vector2) -> None:
+    def set_Entity(self, entity:Entity) -> None:
+        pos = entity.get_vector2
         pos_x: Final[int] = pos.get_x
         pos_y: Final[int] = pos.get_y    
         self.__map[pos_y][pos_x] = entity
 
-    def delete_Entity(self, pos:Vector2) -> None:
+    def delete_Entity(self, entity:Entity) -> None:
+        pos = entity.get_vector2
         pos_x: Final[int] = pos.get_x
         pos_y: Final[int] = pos.get_y    
         self.__map[pos_y][pos_x] = ""
 
     def draw_map(self) -> list:
         dungeon_map = [] 
-        vertical_squares = ""
         vertical_lines: Final[str] = Dungeon.VERTICAL_LINE * self.__width + Dungeon.LINE_END
         for i in range(self.__hight*2):
             if i%2 == 0:
                 dungeon_map.append(vertical_lines)
             elif i%2 == 1:
+                vertical_squares = ""
                 for j in range(self.__width*2):
                     if j%2 == 0:
                         vertical_squares += Dungeon.HORIZON_LINE
                     elif j%2 == 1:
-                        pass
+                        if self.__map[i//2][j//2] != "":
+                            if 1 == len(self.__map[i//2][j//2].get_Id):
+                                vertical_squares += self.__map[i//2][j//2].get_Id+"  "
+                            else:
+                                vertical_squares += self.__map[i//2][j//2].get_Id+" "
+                        else:
+                            vertical_squares += Dungeon.EMPTY_SQUARE
                 vertical_squares += Dungeon.HORIZON_LINE
                 dungeon_map.append(vertical_squares)
         dungeon_map.append(vertical_lines)

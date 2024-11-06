@@ -40,8 +40,6 @@ def load_Entities(file_path:str, main_key:str, sub_key:str) -> dict:
             break
         entities.append(tmp)
         counter += 1
-    if len(entities) < 2:
-        return entities[0]
     return entities
 
 def load_dungeon(file_path:str) -> Tuple[list, int, int]:
@@ -58,16 +56,13 @@ def load_dungeon(file_path:str) -> Tuple[list, int, int]:
     y = len(map_list)
     return map_list , x, y
 
-def show_dungeon(map_list:list, map_size_x:int, map_size_y:int):
+def show_dungeon(map_list:list) -> None:
     """
     Dungeonを表示する関数
     """
-    cell_size = 3
-
-    for i in map_list:
-        for j in range(map_size_x):
-            print(i[j].center(cell_size) + "|", end="")
-        print("")
+    map_length :Final[int] = len(map_list)
+    for i in range(map_length):
+        print(map_list[i])
 
 def load_json(file_path:str) -> dict:
     """
