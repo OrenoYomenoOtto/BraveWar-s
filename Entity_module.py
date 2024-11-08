@@ -113,6 +113,7 @@ class Braver(Entity):
         super().__init__(Id, name, level, x, y)
         self.__iniPosX: Final[int] = x
         self.__iniPosY: Final[int] = y
+        self.__kill_board = 0
         self.__isAlive = True
         self.__move_count = 0 
 
@@ -129,6 +130,13 @@ class Braver(Entity):
         move_countを取得するメソッド
         """
         return self.__move_count
+    
+    @property
+    def get_kill_board(self) -> int:
+        """
+        倒した数を取得する関数
+        """
+        return self.__kill_board
     
     def proceed_move_counter(self) -> None:
         """
@@ -151,7 +159,8 @@ class Braver(Entity):
         Enemy_Level: Final[int] = enemy.get_level
         if self.get_level <= Enemy_Level:
             self.__isAlive = False
-        IO_module.print_start_battle(enemy, self.__isAlive)
+            self.__kill_board += 1
+        IO_module.print_start_battle(enemy.get_name)
 
     def move(self) -> None:
         """
@@ -181,7 +190,7 @@ class Braver(Entity):
         """
         braverのstatusをstrで渡すメソッド
         """
-        return self.get_name+ "\nレベル:" + str(self.get_level) + "\n移動回数" + str(self.get_move_count) 
+        return self.get_name+ "\nレベル:" + str(self.get_level) + "\n移動回数:" + str(self.get_move_count) 
 
 
 class Enemy(Entity):
