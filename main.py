@@ -1,90 +1,133 @@
 # coding: utf-8
 
-import random
 from typing import Final, Tuple
 import IO_module
 import Entity_module 
-import sys
 
-ENTITY_CONFIG: Final[str] = "Entity_module.py" 
+
+ENTITY_CONFIG: Final[str] = "Entity_config.ini"
+TOTAL_LAYER_NUM: Final[int] = 2 
 FILE_PATH: Tuple[str] = ("Entity_module.py", "Entity_config.ini","IO_module.py","Flavor.json")
 MAP_WIDTH_SIZE: Final[int] = 5
 MAP_HIGHT_SIZE: Final[int] = 5
 
+def create_braver(data: list) -> Entity_module.Braver:
+    """
+    braverオブジェクトを作成する関数
+    """
+    braver = Entity_module.Braver(data[0]["Id"], data[0]["Name"], data[0]["Level"], data[0]["Pos_x"], data[0]["Pos_y"] )
+    return braver
+
+def create_boss(data: list) -> Entity_module.Enemy:
+    """
+    bossオブジェクトを作成する関数
+    """
+    boss = Entity_module.Enemy(data[0]["Id"], data[0]["Name"], data[0]["Level"], data[0]["Pos_x"], data[0]["Pos_y"], True)
+    return boss
+
+def create_enemies(data: list) -> list:
+    """
+    enemyオブジェクトを作成する関数
+    """
+    enemies = []
+    for i in range(len(data)):
+        enemies.append(Entity_module.Enemy(data[i]["Id"], data[i]["Name"], data[i]["Level"], data[i]["Pos_x"], data[i]["Pos_y"], False))
+    return enemies
+
+def create_items(data: list) -> list:
+    """
+    itemオブジェクトを作成する関数
+    """
+    items = []
+    for i in range(len(data)):
+        items.append(Entity_module.Item(data[i]["Id"], data[i]["Name"], data[i]["Level"], data[i]["Pos_x"], data[i]["Pos_y"]))
+    return items
+
+def create_dungeon(boss_data: list, enemy_data: list, item_data: list):
+    """
+    dungeonオブジェクトとその階層に関連するオブジェクトを作成する関数
+    """
+    dungeon = Entity_module.Dungeon(MAP_WIDTH_SIZE,MAP_HIGHT_SIZE)
+    boss = create_boss(boss_data)
+    enemies = create_enemies(enemy_data)
+    items = create_items(item_data)
+    return dungeon, boss, enemies ,items
+
+def set_entities(dungeon: Entity_module.Dungeon, braver:Entity_module.Braver, boss: Entity_module.Enemy, enemies: list, items: list)-> None:
+    """
+    entityをdungeonに配置する関数
+    """
+    dungeon.set_Entity(braver)
+    for enemy in enemies:
+        dungeon.set_Entity(enemy)
+    for item in items:
+        dungeon.set_Entity(item)
+    dungeon.set_Entity(boss)
+
+def Search_Dungeon(boss_data: list, enemy_data: list, item_data: list):
+    """
+    Dungeonを探索するpartをまとめた関数
+    """
+    dungeon, Boss, Enemies, Items = create_dungeon(boss_data, enemy_data, item_data)
+    set_entities(dungeon, Player, Boss, Enemies, Items)
+    while True:
+        #Dungeon, playerのstatus, enemiesのstatusの表示
+        IO_module.show_dungeon(dungeon.draw_map())
+        IO_module.print_status(Player.give_status())
+        IO_module.print_enemies_status(Enemies)
+        #playerを盤から浮かす
+        dungeon.delete_Entity(Player)
+        #playerを動かし(浮いた状態), counterを増加する
+        Player.move()
+        Player.proceed_move_counter()
+        #playerが別Entityと衝突の有無とplayerの現在地を取得する。衝突の有無で場合分けする
+        isCollision, current_pos = dungeon.collision_Entity(Player)
+        if isCollision == True:
+            #衝突したEntityを取得してEntityの種類で場合分けする
+            Collision_Entity = dungeon.get_Entity(current_pos)
+            if type(Collision_Entity) is Entity_module.Enemy:
+                #Enemyと戦闘が発生しplayerの生死状態を変更する
+                Player.battle(Collision_Entity)
+                if Player.get_isAlive != True:
+                    IO_module.lose_game() 
+                #EnemyがBossではない場合
+                if Collision_Entity.get_isBoss != True:
+                    Player.level_up(Collision_Entity.get_level)
+                    Enemies.remove(Collision_Entity)
+                #Bossの場合ループを抜ける
+                elif Collision_Entity.get_isBoss == True:
+                    break
+            #Itemを取得した場合
+            elif type(Collision_Entity) is Entity_module.Item:
+                IO_module.display_flavor_text(flavor_data, "Item", "ring")
+                Player.level_up(Collision_Entity.get_level)
+        #playerを盤の移動先に打つ
+        dungeon.set_Entity(Player)
+
+#<--main-->
 
 #FileCheck
 for i in range(len(FILE_PATH)):
     IO_module.file_check(FILE_PATH[i])
 
 #FileLoad
-flavor_data = IO_module.load_json("Flavor.json")
-player_data = IO_module.load_Entities(ENTITY_CONFIG, "BRAVER", "Braver")
-enemy_data_01 = IO_module.load_Entities(ENTITY_CONFIG, "DUNGEON01_ENEMIES", "Enemy")
-enemy_data_02 = IO_module.load_Entities(ENTITY_CONFIG, "DUNGEON02_ENEMIES", "Enemy")
-item_data_01 = IO_module.load_Entities(ENTITY_CONFIG, "DUNGEON01_ITEMS", "Item")
-item_data_02 = IO_module.load_Entities(ENTITY_CONFIG, "DUNGEON02_ITEMS", "Item")
-boss_data = IO_module.load_Entities(ENTITY_CONFIG, "DUNGEON_BOSS", "Boss")
-
-#enemy_data[] = IO_module.load_Entit
+flavor_data: Final[dict] = IO_module.load_json("Flavor.json")
+player_data: Final[list] = IO_module.load_Entities(ENTITY_CONFIG, "BRAVER", "Braver")
+enemy_data: Final[list] = []
+item_data: Final[list] = []
+boss_data: Final[list] = []
+for i in range(TOTAL_LAYER_NUM):
+    enemy_data.append(IO_module.load_Entities(ENTITY_CONFIG, f"DUNGEON{i}_ENEMIES", "Enemy"))
+    item_data.append(IO_module.load_Entities(ENTITY_CONFIG, f"DUNGEON{i}_ITEMS", "Item"))
+    boss_data.append(IO_module.load_Entities(ENTITY_CONFIG, f"DUNGEON{i}_BOSS", "Boss"))
 
 #playerの初期化,インスタンス化
-Player = Entity_module.Braver(player_data[0]["Id"], player_data[0]["Name"], player_data[0]["Level"], player_data[0]["Pos_x"], player_data[0]["Pos_y"] )
+Player = create_braver(player_data)
 
-#Enemiesの初期化,インスタンス化
-Enemies = []
-for i in range(len(enemy_data_01)):
-    Enemies.append(Entity_module.Enemy(enemy_data_01[i]["Id"],enemy_data_01[i]["Name"],enemy_data_01[i]["Level"],enemy_data_01[i]["Pos_x"],enemy_data_01[i]["Pos_y"],False))
+for i in range(TOTAL_LAYER_NUM):
+    Search_Dungeon(boss_data[i], enemy_data[i], item_data[i])
+    Player.init_pos()
 
-#Bossの初期化,インスタンス化
-Boss = Entity_module.Enemy(boss_data[0]["Id"], boss_data[0]["Name"], boss_data[0]["Level"], boss_data[0]["Pos_x"], boss_data[0]["Pos_y"], True)
-
-#Itemの初期化,インスタンス化
-Items = []
-if type(item_data_01) is list:
-    for i in range(len(item_data_01)):
-        Items.append(Entity_module.Item(item_data_01[i]["Id"],item_data_01[i]["Name"],item_data_01[i]["Level"],item_data_01[i]["Pos_x"],item_data_01[i]["Pos_y"]))
-else:
-    Items.append(Entity_module.Item(item_data_01["Id"],item_data_01["Name"],item_data_01["Level"],item_data_01["Pos_x"],item_data_01["Pos_y"]))
-
-#dungeonの初期化,インスタンス化
-dungeon = Entity_module.Dungeon(MAP_WIDTH_SIZE,MAP_HIGHT_SIZE)
-
-
-
-#dungeonにオブジェクトを配置
-dungeon.set_Entity(Player)
-for Item in Items:
-    dungeon.set_Entity(Item)
-for Enemy in Enemies:
-    dungeon.set_Entity(Enemy)
-dungeon.set_Entity(Boss)
-
-
-
-
-"""ダンジョンの１階層のループ"""
-
-
-while True:
-    IO_module.show_dungeon(dungeon.draw_map())
-    IO_module.print_status(Player.give_status())
-    dungeon.delete_Entity(Player)
-    Player.move()
-    isCollision, current_pos = dungeon.collision_Entity(Player)
-    if(isCollision == True):
-        Collision_Entity = dungeon.get_Entity(current_pos)
-        Player.battle(Collision_Entity.get_level)
-        if False == Player.get_isAlive:
-            IO_module.lose_game() 
-        if type(Collision_Entity) is Entity_module.Enemy:
-            if Collision_Entity.get_isBoss == False:
-                Player.level_up(Collision_Entity.get_level)
-        elif type(Collision_Entity) is Entity_module.Item:
-            Player.level_up(Collision_Entity.get_level)
-    dungeon.set_Entity(Player)
-    Player.proceed_move_counter()   
-
-    
 
 # """終了報告"""
 # if get_result == escaped:

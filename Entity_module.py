@@ -44,6 +44,10 @@ class Vector2:
         """
         self.__y = y
 
+    def set_vector2(self, x: int, y: int):
+        self.__x = x
+        self.__y = y
+
 
 class Direction(enum.IntEnum):
     W = 0
@@ -107,6 +111,8 @@ class Braver(Entity):
     """
     def __init__(self, Id: str, name: str, level: int, x: int, y: int) -> None:
         super().__init__(Id, name, level, x, y)
+        self.__iniPosX: Final[int] = x
+        self.__iniPosY: Final[int] = y
         self.__isAlive = True
         self.__move_count = 0 
 
@@ -137,13 +143,15 @@ class Braver(Entity):
         Re_level = self.get_level + level
         self.set_level = Re_level
 
-    def battle(self, E_level:int) -> None:
+    def battle(self, enemy:Entity) -> None:
         """
         戦闘を行うメソッド
         相手のlevelと比較を行い、braverの生死を返す
         """
-        if self.get_level <= E_level:
+        Enemy_Level: Final[int] = enemy.get_level
+        if self.get_level <= Enemy_Level:
             self.__isAlive = False
+        IO_module.print_start_battle(enemy, self.__isAlive)
 
     def move(self) -> None:
         """
@@ -163,6 +171,12 @@ class Braver(Entity):
             x_pos = self.vector2.get_x +1
             self.vector2.set_x = x_pos
 
+    def init_pos(self) -> None:
+        """
+        playerの位置を設定値に変える
+        """
+        self.vector2.set_vector2(self.__iniPosX, self.__iniPosY )
+
     def give_status(self) -> str:
         """
         braverのstatusをstrで渡すメソッド
@@ -178,6 +192,9 @@ class Enemy(Entity):
     @property
     def get_isBoss(self) -> bool:
         return self.__isBoss
+    
+    def give_status(self) ->str:
+        return self.get_Id+ " " + self.get_name + " レベル: " + str(self.get_level) 
 
 
 class Item(Entity):

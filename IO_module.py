@@ -8,8 +8,6 @@ import sys
 import configparser
 import ast
 import json
-import re
-import enum
 import Entity_module
 from typing import Tuple, Final
 
@@ -25,13 +23,13 @@ def file_check(file_path:str) -> None:
         print("必要なファイルが存在しません。\nファイルを確認してください。\n\n 足りないファイル：" + file_path )
         sys.exit()
 
-def load_Entities(file_path:str, main_key:str, sub_key:str) -> dict:
+def load_Entities(file_path:str, main_key:str, sub_key:str) -> list:
     """
     設定ファイル(Entity_config.ini)から辞書情報を読み込む関数
     データが複数ある場合はdictが入ったlistで返し、そうでない場合はdictで返す
     """
     Entity_config = configparser.ConfigParser()
-    Entity_config.read(file_path)
+    Entity_config.read(file_path, encoding="utf-8")
     entities = []
     counter = 1
     while True:
@@ -97,11 +95,31 @@ def display_flavor_text(data, category, sub_key=None):
 def out_result() -> None:
     pass
 
+def print_start_battle(enemy: Entity_module.Entity, isAlive: bool) -> None:
+    VERTICAL_LINE: Final[str] = "==================\n"
+    APPEAR_TEXT: Final[str] = enemy.get_name + "が現れた!!\n"
+    if(isAlive == True):
+        AFTER_THE_BATTLE_TEXT: Final[str] = "ぐへへへぇぇぇ!! ぶち殺してやったぜ!!\n"
+    else:
+        AFTER_THE_BATTLE_TEXT: Final[str] = "う、うわぁぁぁぁぁ!! テニニニニニン\n"
+    output_text = VERTICAL_LINE + APPEAR_TEXT + AFTER_THE_BATTLE_TEXT + VERTICAL_LINE
+    print(output_text)
+
+
+
 def print_status(status:str) -> None:
     """
     playerのstatusを表示する関数
     """
     print(status)
+
+def print_enemies_status(Enemies: list) -> None:
+    VERTICAL_LINE: Final[str] = "=================="
+    print(VERTICAL_LINE)
+    for Enemy in Enemies:
+        enemy_status = Enemy.give_status()
+        print(enemy_status)
+    print(VERTICAL_LINE)
 
 def select_direction(pos:Entity_module.Vector2) -> int:
     """
