@@ -163,12 +163,3 @@ for i in range(TOTAL_LAYER_NUM):
     Player.init_pos()
 game_result(Player, dungeon_info_data)
 IO_module.out_fin_txt()
-
-
-# """終了報告"""
-# if get_result == escaped:
-#     print("Clear: Congratulations! You escaped!")
-# elif get_result == happy_end:
-#     print("Clear: Congratulations! You escaped! and You married a princess.")
-# else:
-#     print("Error: No Result")
