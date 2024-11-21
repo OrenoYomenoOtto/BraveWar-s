@@ -13,6 +13,12 @@ import Entity_module
 from typing import Tuple, Final
 
 
+class color:
+    RED = "\033[31m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    END = "\033[0m"
+
 def file_check(file_path:str) -> None:
     """
     ファイルの有無を確認する関数
@@ -102,9 +108,9 @@ def display_flavor_text(data, category, sub_key=None):
 
 def out_result(isGenocide: bool, isFaster: bool) -> None:
     if isGenocide == True:
-        print("称号が送られます --シリアルキラー--")
+        print(color.RED+"称号が送られます --シリアルキラー--"+color.END)
     if isFaster == True:
-        print("称号が贈られます --クリアもアレも早いわね...--")
+        print(color.MAGENTA+"称号が贈られます --クリアもアレも早いわね...--"+color.END)
 
 def out_fin_txt():
     print("おめでとう。\nGameClear")
@@ -127,7 +133,7 @@ def print_status(status:str) -> None:
     """
     playerのstatusを表示する関数
     """
-    print(status)
+    print(color.CYAN+status+color.END)
 
 def print_enemies_status(Enemies: list, Boss: Entity_module.Enemy) -> None:
     VERTICAL_LINE: Final[str] = "=================="
@@ -192,7 +198,7 @@ def can_move_direction_D(pos:Entity_module.Vector2) -> bool:
     return Is_move
 
 def lose_game() -> None:
-    print("you are lose!! To be a continued...")
+    print(color.RED+"YOU LOSE!! To be continued..."+color.END)
     sys.exit()
 
 #テスト

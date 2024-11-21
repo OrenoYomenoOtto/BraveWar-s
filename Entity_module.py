@@ -5,6 +5,13 @@ from typing import Final
 import IO_module
 
 
+class color:
+    RED = "\033[31m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    END = "\033[0m"
+    
+
 class Vector2:
     """
     x,y成分をまとめたクラス
